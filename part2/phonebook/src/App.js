@@ -2,19 +2,20 @@ import { useEffect, useState } from 'react'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
-import axios from 'axios'
-
+import personService from './service'
 const App = () => {
-  const [notes, setNotes] = useState([])
-  const [persons, setPersons] = useState() 
+ 
+  const [persons, setPersons] = useState()
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('');
   const [search, setSearch] = useState([]);
-
+  
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/persons")
-      .then(response => { setPersons(response.data) })
+    personService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
+      })
   }, [])
 
   const handleInputName = (e) => {
@@ -27,14 +28,33 @@ const App = () => {
   }
 
   const AddPerson = (event) => {
-    event.preventDefault(); 
-    const isUserExist = persons.some((person) => person.name === newName);
-    if (isUserExist) return alert(newName + " has already existed in phonebook");
+    event.preventDefault();
+    const isUserExist = persons?.find((person) => person.name === newName);
+    const changedNumber = {...isUserExist, number:newNumber}
+    if (isUserExist) {
+      if (window.confirm(`${isUserExist.name} is already added to phonebook,replace the old number with the new one?`)) {
+        personService
+          .update(isUserExist.id, changedNumber)
+          .then(returnedUser => {
+            setPersons(persons.map(person => person.id !== isUserExist ? person : returnedUser))
+            setNewName("");
+            setNewNumber("");
+            window.location.reload(true);
+          })
+      }
+    }
     else {
-      const personObject = [...persons, { name: newName,number: newNumber }]
-      setPersons(personObject); 
-      setNewName(""); 
-      setNewNumber("");
+      const personObject = {
+        name: newName,
+        number: newNumber,
+      }
+      personService
+        .create(personObject)
+        .then(returnPerson => {
+          setPersons(persons.concat(returnPerson))
+          setNewName("");
+          setNewNumber("");
+        })
     }
   }
 
@@ -42,7 +62,15 @@ const App = () => {
     e.preventDefault();
     setSearch(e.target.value);
   }
-
+  const handleDelete = (id,name) => {
+    if (window.confirm(`Delete ${name}`)) {
+      window.open("exit.html", "Thanks for Visiting!");
+      personService
+      .deletePerson(id)
+      .then(respone => console.log(respone.data));
+    }
+    
+  }
   return (
     <div>
       <h2>Phonebook</h2>
@@ -63,9 +91,15 @@ const App = () => {
 
       {
         persons?.map((person) =>
-        person.name.toLowerCase().includes(search.toString().toLowerCase()) ?
+        person?.name?.toLowerCase().includes(search.toString().toLowerCase()) ?
         (
-              <Persons name={person.name} number={person.number} key={ person.id} />
+              <Persons
+                name={person.name}
+                handleDelete={handleDelete}
+                number={person.number}
+                id={person.id}
+                key={person.id}
+              />
         ) : ("")
         )
       }  
