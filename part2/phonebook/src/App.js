@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Filter from './components/Filter'
+import Notification from './components/Notification'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 import personService from './service'
@@ -9,7 +10,9 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('');
   const [search, setSearch] = useState([]);
-  
+  const [mess, setMess] = useState("");
+  const [showMess, setShowMess] = useState(false);
+  const [colorNoti,setColorNoti]= useState("success")
   useEffect(() => {
     personService
       .getAll()
@@ -30,23 +33,32 @@ const App = () => {
   const AddPerson = (event) => {
     event.preventDefault();
     const isUserExist = persons?.find((person) => person.name === newName);
-    const changedNumber = {...isUserExist, number:newNumber}
     if (isUserExist) {
+      const changedNumber = {...isUserExist, number:newNumber}
       if (window.confirm(`${isUserExist.name} is already added to phonebook,replace the old number with the new one?`)) {
         personService
           .update(isUserExist.id, changedNumber)
           .then(returnedUser => {
             setPersons(persons.map(person => person.id !== isUserExist ? person : returnedUser))
-            setNewName("");
-            setNewNumber("");
-            window.location.reload(true);
+            setShowMess(true);
+            setMess(`${isUserExist.name}'s number was updated`)
+          })
+          .catch((error) => {
+            setMess(error.response.data.error)
+            setShowMess(true);
           })
       }
+      setNewName("");
+      setNewNumber("");
+      setTimeout(() => {
+        setShowMess(false);
+      },3000)
     }
     else {
       const personObject = {
         name: newName,
         number: newNumber,
+        id: persons.length + 1
       }
       personService
         .create(personObject)
@@ -54,7 +66,17 @@ const App = () => {
           setPersons(persons.concat(returnPerson))
           setNewName("");
           setNewNumber("");
+          setMess(`Added ${newName}`);
+          setShowMess(true);
+          
         })
+        .catch((error) => {
+          setMess(error.response.data.error)
+          setShowMess(true);
+        })
+      setTimeout(()=>{
+        setShowMess(false)
+      },3000)
     }
   }
 
@@ -62,19 +84,31 @@ const App = () => {
     e.preventDefault();
     setSearch(e.target.value);
   }
-  const handleDelete = (id,name) => {
+  const handleDelete = (id, name) => {
     if (window.confirm(`Delete ${name}`)) {
-      window.open("exit.html", "Thanks for Visiting!");
       personService
-      .deletePerson(id)
-      .then(respone => console.log(respone.data));
+        .deletePerson(id)
+        .then(returnPerson => {
+          setPersons(persons.filter(person=> person.id !==id));
+          setMess(`${name} is deleted`)
+          setShowMess(true);
+        })
+        .catch((err) => {
+          setMess(`the person name : "${name}" was already deleted from server`)
+          setShowMess(true);
+          setPersons(persons.filter(person => person.id !== id))
+          setColorNoti("fail")
+        })
     }
-    
-  }
+    setTimeout(() => { 
+      setShowMess(false)
+      setColorNoti("success")
+    },3000)
+}
   return (
     <div>
       <h2>Phonebook</h2>
-      
+      {showMess && <Notification mess={mess} color={colorNoti} />}
       <Filter handleFilter={handleFilter} search={search} />
       
       <h3>Add a new</h3>
