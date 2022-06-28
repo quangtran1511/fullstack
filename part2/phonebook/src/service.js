@@ -1,5 +1,5 @@
 import axios from 'axios'
-const baseUrl = 'https://fso-part310.herokuapp.com/api/persons'
+const baseUrl = '/api/persons'
 
 const getAll = async () => {
     try {
