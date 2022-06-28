@@ -2,21 +2,21 @@ import { useState,useEffect } from 'react'
 
 const Statistics = ({ good, neutral, bad, average, positive,feedBack }) => {
   return (
-    <div>
+    <table>
       <StatisticLine text="good" value={good} />
       <StatisticLine text="neutral" value={neutral}/>
       <StatisticLine text="bad" value={bad} />
       <StatisticLine text="feedBack" value={feedBack}/>
       <StatisticLine text="average" value={average}/>
       <StatisticLine text="positive" value={positive}/>
-    </div >
+    </table >
   )
 }
 
 const StatisticLine = (props) => {
   return(
     <div>
-      {props.text}  {props.value}
+      {props.text}  {props.value}{props.text==="positive" && "%"}
     </div>
   )
 }
@@ -76,6 +76,7 @@ const App = () => {
       }
   </div>
     
+
   )
 
 
