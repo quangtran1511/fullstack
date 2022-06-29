@@ -33,6 +33,27 @@ const App = () => {
 
   const AddPerson = (event) => {
     event.preventDefault();
+    if(newName.length < 3){
+      setMess(`Name is too short, please provide a name with at least 3 digits`)
+      setShowMess(true)
+      setColorNoti("fail")
+      setTimeout(() => {
+        setMess(null);
+        setShowMess(false)
+      }, 5000);
+      return;
+    } 
+
+    if(newNumber.length < 8) {
+      setMess(`number is too short, please provide a number with at least 8 digits`)
+      setShowMess(true)
+      setColorNoti("fail")
+      setTimeout(() => {
+        setMess(null);
+        setShowMess(false)
+      }, 5000);
+      return;
+    }
     const isUserExist = persons?.find((person) => person.name === newName);
     if (isUserExist) {
       const changedNumber = {...isUserExist, number:newNumber}
@@ -43,17 +64,19 @@ const App = () => {
             setPersons(persons.map(person => person.id !== isUserExist ? person : returnedUser))
             setShowMess(true);
             setMess(`${isUserExist.name}'s number was updated`)
+            setNewName("");
+            setNewNumber("");
+            setColorNoti("success")
           })
           .catch((error) => {
             setMess(error.response.data.error)
             setShowMess(true);
           })
       }
-      setNewName("");
-      setNewNumber("");
       setTimeout(() => {
+        window.location.reload(false);
         setShowMess(false);
-      },3000)
+      }, 3000)
     }
     else {
       const personObject = {
@@ -69,13 +92,15 @@ const App = () => {
           setNewNumber("");
           setMess(`Added ${newName}`);
           setShowMess(true);
-          
+          setColorNoti("success")
         })
         .catch((error) => {
           setMess(error.response.data.error)
+          setColorNoti("fail")
           setShowMess(true);
         })
-      setTimeout(()=>{
+      setTimeout(() => {
+        setColorNoti("success   ")
         setShowMess(false)
       },3000)
     }
@@ -105,7 +130,8 @@ const App = () => {
       setShowMess(false)
       setColorNoti("success")
     },3000)
-}
+  }
+  
   return (
     <div>
       <h2>Phonebook</h2>
