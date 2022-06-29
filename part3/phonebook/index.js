@@ -19,13 +19,13 @@ const errorHandler = (error, request, response, next) => {
     return response.status(400).send({ error: 'malformatted id' })
   } else if (error.name === "ValidationError") {
     return response.status(400).json({ error: error.message });
-    next(error)
   }
+  next(error)
 }
 
 app.get('/api/persons', (request, response) => {
-    Person.find({}).then(notes => {
-    response.json(notes)
+    Person.find({}).then(persons => {
+    response.json(persons)
   })
 
 })
@@ -57,6 +57,7 @@ app.delete("/api/persons/:id", (request, respone,next) => {
 })
 
 //previous excercise
+
 // const generateId = () => {
 //   const maxId = Math.floor(Math.random() * 10000);
 //   return maxId
@@ -84,22 +85,29 @@ app.delete("/api/persons/:id", (request, respone,next) => {
 // })
 
   //ex 3.14
-  app.post("/api/persons", (request, response) => {
+  app.post("/api/persons", (request, response,next) => {
     const body = request.body
+    const number = Number(body.number)
+    if (body === undefined) {
+      return response.status(400).json({error:'name or number missing'})
+    }
     const newPerson = new Person({
       name: body.name,
-      number:body.number
+      number:number
     })
-    newPerson.save().then(savedPerson => {
-      response.json(savedPerson)
-    })
+    newPerson
+      .save()
+      .then(savedPer => savedPer.toJSON())
+      .then(savedAndFormattedPer => {response.json(savedAndFormattedPer)
+      })
+      .catch(error => next(error))
   })
 
 app.put("/api/persons/:id", (request, response,next) => {
   const id = request.params.id
   const body = request.body
   const person = {
-    name: body.name,
+    name: body.name,  
     number:body.number
   }
   Person.findByIdAndUpdate(id, person, { new: true })
@@ -118,7 +126,7 @@ app.use(unknownEndpoint)
 // this has to be the last loaded middleware.
 app.use(errorHandler)
 
-const PORT =process.env.PORT || 3001
+const PORT =process.env.PORT
 app.listen(PORT, () => {
     console.log(`server running on port ${PORT}`)
 })
