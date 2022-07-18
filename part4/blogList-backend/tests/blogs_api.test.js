@@ -120,7 +120,8 @@ describe("update of a blog", () => {
         const newBlogs= await helper.blogsInDb()
         expect(newBlogs[0].likes).toEqual(4)
     })
-})    
+})
+    
 afterAll(() => {
   mongoose.connection.close()
 })

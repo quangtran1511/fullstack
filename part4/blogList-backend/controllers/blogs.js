@@ -1,21 +1,25 @@
 const blogsRouter = require('express').Router()
-const { request, response } = require('express')
 const Blog = require('../models/blogs')
+const User = require('../models/users')
 
 blogsRouter.get('/', async(request, response) => {
-    const blogs = await Blog.find({})
+    const blogs = await Blog.find({}).populate('user')
     response.json(blogs)
   })
   
 blogsRouter.post('/', async(request, response,next) => {
-    const body = request.body
+  const body = request.body
+  
+  const user = await User.findById(body.user)
 
   const blog = new Blog({
     title: body.title,
     author: body.author ,
     url: body.url,
-    likes: body.likes
+    likes: body.likes,
+    user: user._id
   })
+  
   if (blog.likes===undefined) {
       blog.likes = 0;
   }
@@ -23,6 +27,11 @@ blogsRouter.post('/', async(request, response,next) => {
     response.status(400).send('Bad Request')
   } else {
     const savedBlog = await blog.save()
+    
+    console.log("blogId", savedBlog)
+    user.blogs = user.blogs.concat(savedBlog._id)
+    await user.save()
+
     response.status(201).json(savedBlog)
   } 
    
