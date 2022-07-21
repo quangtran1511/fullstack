@@ -1,9 +1,9 @@
 POST http://localhost:3003/api/blogs 
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QzIiwiaWQiOiI2MThmMTJhMzJhYWE0NzYzMWM5OTBkOWEiLCJpYXQiOjE2MzY3OTM2NDksImV4cCI6MTYzNjc5NzI0OX0.R_fV08Jmt_7F_NvbxpbQCd-b6f8-paZWIPxm99aJMhs
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJlbjIwMSIsImlkIjoiNjJkNmY0ZTU5OTlkMTZjM2EyZThhZThmIiwiaWF0IjoxNjU4NDA5Mjc5fQ.O5Mfjv8qr2cRvnD1TIf7I11fo0nReYRNOM_dwSFkH4k
 
 {
-    "title": "testing",
+    "title": "test123",
     "author": "ben",
     "url":"testing.com",
     "likes": "54",
