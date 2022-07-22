@@ -4,7 +4,8 @@ const app = require('../app')
 const Blog = require('../models/blogs')
 const api = supertest(app)
 const helper = require('./test_helper')
-
+const User = require('../models/users')
+const bcrypt = require('bcrypt')
   beforeEach(async () => {
     await Blog.deleteMany({})
     let blogObject = new Blog(helper.initialBlogs[0])
@@ -13,7 +14,7 @@ const helper = require('./test_helper')
     await blogObject.save()
   })
 
-describe('when there is initially some notes saved', () => {
+describe('when there is initially some blogs saved', () => {
     test('blogs are returned as json', async () => {
         await api
             .get('/api/blogs')
@@ -32,7 +33,26 @@ describe('when there is initially some notes saved', () => {
         expect(firstBlog.id).toBeDefined()
     })
 })
-describe('addition of a new note', () => {
+describe('addition of a new blog', () => {
+    let token = null
+  beforeAll(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('ben251', 10)
+    const user = new User({ username: 'ben', passwordHash })
+
+    await user.save()
+
+    // Login user to get token
+    await api
+      .post('/api/login')
+      .send({ username: 'ben', password: 'ben251' })
+      .then((res) => {
+        return (token = res.body.token)
+      })
+
+    return token
+  })  
     test('successfully creating a new blog post', async () => {
         const newBlog = {
             title: 'Bootstrap',
@@ -42,6 +62,7 @@ describe('addition of a new note', () => {
         }
         await api
             .post('/api/blogs')
+            .set('Authorization', `bearer ${token}`)
             .send(newBlog)
             .expect(201)
             .expect('Content-Type', /application\/json/)
@@ -61,7 +82,11 @@ describe('addition of a new note', () => {
             url: "test0",
           };
         
-          await api.post("/api/blogs").send(zeroLikeBlog).expect(201);
+        await api
+            .post("/api/blogs")
+            .set('Authorization', `bearer ${token}`)
+            .send(zeroLikeBlog)
+            .expect(201);
         
           const newBlogs = await helper.blogsInDb();
           expect(newBlogs[newBlogs.length - 1].likes).toEqual(0);
@@ -74,25 +99,60 @@ describe('addition of a new note', () => {
         }
         await api
             .post("/api/blogs")
+            .set('Authorization', `bearer ${token}`)
             .send(missingBLog)
             .expect(400);
     })
 })
 
 describe('deletion of a blog', () => {
+    let token = null
+  beforeEach(async () => {
+    await Blog.deleteMany({})
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('ben251', 10)
+    const user = new User({ username: 'ben', passwordHash })
+
+    await user.save()
+
+    // Login user to get token
+    await api
+      .post('/api/login')
+      .send({ username: 'ben', password: 'ben251' })
+      .then((res) => {
+        return (token = res.body.token)
+      })
+
+      const newBlog = {
+        title: 'deno',
+        author: 'ben',
+        url: 'deno.com',
+        likes:4
+      }
+  
+      await api
+        .post('/api/blogs')
+        .set('Authorization', `bearer ${token}`)
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+  
+      return token
+  })
+
     test('succeeds with status code 204 if id is valid', async () => {
         const blogsAtStart = await helper.blogsInDb()
-        const blogToDelete = blogsAtStart[0]
-
-        await api
-            .delete(`/api/blogs/${blogToDelete.id}`)
-            .expect(204)
+    const blogToDelete = blogsAtStart[0]
+  
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `bearer ${token}`)
+      .expect(204)
 
         const blogsAtEnd = await helper.blogsInDb()
         
-        expect(blogsAtEnd).toHaveLength(
-            helper.initialBlogs.length - 1
-        )
+        expect(blogsAtEnd).toHaveLength(0)
 
         const contents = blogsAtEnd.map(r => r.title)
         
