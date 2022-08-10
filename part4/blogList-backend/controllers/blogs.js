@@ -63,7 +63,12 @@ blogsRouter.delete('/:id', async (request, response) => {
 
 blogsRouter.put('/:id', async (request, response) => {
   const body = request.body
+  const token = request.token
+  const user = request.user
   const id = request.params.id
+  if (!(token && user)) {
+    return response.status(401).json({error:"token missing or invalid"})
+  }
   const blog = {
     title: body.title,
     author: body.author,
