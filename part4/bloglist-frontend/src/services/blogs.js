@@ -8,9 +8,20 @@ const setToken = newToken => {
 }
 
 
-const getAll = () => {
-  const request = axios.get(baseUrl)
-  return request.then((response) => response.data)
+const getAll = async () => {
+  const request =axios.get(baseUrl)
+  const response = await request
+  return response.data
+}
+
+const addLike = async(newObject) => {
+  const config = {
+    headers: { Authorization: token },
+  }
+  const newBaseUrl = `${baseUrl}` + `/${newObject.id}`
+  
+   const response = await axios.put(newBaseUrl,newObject,config)
+    return response.data
 }
 
 const create = async newObject => {
@@ -22,4 +33,4 @@ const create = async newObject => {
   return response.data
 }
 
-export default { getAll,setToken,create }
+export default { getAll,setToken,create,addLike }
