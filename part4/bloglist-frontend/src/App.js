@@ -84,7 +84,7 @@ const App = () => {
           likes:''
       })
       })
-      setErrorMessage(`a new Blog '${newBlog}' added`)
+      setErrorMessage(`a new Blog '${newBlog.title}' added`)
     }catch (exception) {
       setErrorMessage('Missing url or title')
       setTimeout(() => {

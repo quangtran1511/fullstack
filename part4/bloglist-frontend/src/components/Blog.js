@@ -27,8 +27,19 @@ const Blog = ({ blog,blogs,setBlogs }) => {
     } catch (err) {
       console.log(err)
     }
-    
   }
+  const handleDelete = (e) => {
+    if (window.confirm(`Remove the blog: '${blog.title}' by ${blog.author}`)) {
+      try {
+        blogService
+          .remove(blog)
+          .then(returnedBlog=> setBlogs(blogs.filter(blog=>blog.id!==returnedBlog.id)))
+      }catch(err) {
+        console.log(err)
+      }
+    }
+    
+  } 
   return (
     <div style={blogStyle}>
       <div>{blog.title} <button onClick={(e) => handleView(e)}>{ view ? "hide" : "view"}</button></div>
@@ -44,6 +55,7 @@ const Blog = ({ blog,blogs,setBlogs }) => {
             </button>
           </div>
           <div>{blog.author}</div>
+          <button onClick={(e)=>handleDelete(e)}>remove</button>
         </div>
       )}
      
