@@ -11,12 +11,12 @@ import Togglable from './components/Togglable'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('') 
-  const [password, setPassword] = useState('') 
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
- 
-  
+
+
   const [newBlog, setNewBlog] = useState({
     title:'',
     author: '',
@@ -24,8 +24,8 @@ const App = () => {
     likes:''
   })
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
-  }, [blogs]);
+    blogService.getAll().then((blogs) => setBlogs(blogs))
+  }, [blogs])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
@@ -38,15 +38,15 @@ const App = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault()
-    
+
     try {
       const user = await loginService.login({
         username, password,
       })
       window.localStorage.setItem(
         'loggedBlogappUser', JSON.stringify(user)
-      ) 
-      blogService.setToken(user.token)  
+      )
+      blogService.setToken(user.token)
       setUser(user)
       setUsername('')
       setPassword('')
@@ -58,9 +58,9 @@ const App = () => {
     }
   }
 
-  const handleLogout = (e) => {
+  const handleLogout = () => {
     window.localStorage.removeItem('loggedBlogappUser')
-    window.location.reload(false);
+    window.location.reload(false)
   }
 
   const addBlog = (event) => {
@@ -97,6 +97,7 @@ const App = () => {
   }
 
   const handleBlogChange = (event) => {
+    event.preventDefault()
     setNewBlog({...newBlog,[event.target.name]: event.target.value})
   }
 const loginForm = () => (
@@ -119,12 +120,12 @@ const loginForm = () => (
         handleBlogChange={handleBlogChange}
       />
   </Togglable>
-)  
+)
   return (
     <div>
       <h1>Blogs</h1>
       <Notification message={errorMessage}/>
-      
+
       {user === null ?
         loginForm() : (
         <div>
@@ -144,7 +145,7 @@ const loginForm = () => (
           </div>
         )
       }
-        
+
     </div>
   )
 }

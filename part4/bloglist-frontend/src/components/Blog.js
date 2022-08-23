@@ -10,7 +10,7 @@ const Blog = ({ blog,blogs,setBlogs }) => {
     marginBottom: 5
   }
   const [view, setView] = useState(false)
-  
+
   const handleView = (e) => {
     e.preventDefault();
     setView(!view);
@@ -18,7 +18,7 @@ const Blog = ({ blog,blogs,setBlogs }) => {
 
   const handleLike = (e) => {
     e.preventDefault();
-    const newBlog = {...blog, likes: blog.likes + 1 } 
+    const newBlog = {...blog, likes: blog.likes + 1 }
     try {
       blogService
         .addLike(newBlog)
@@ -28,7 +28,7 @@ const Blog = ({ blog,blogs,setBlogs }) => {
       console.log(err)
     }
   }
-  const handleDelete = (e) => {
+  const handleDelete = () => {
     if (window.confirm(`Remove the blog: '${blog.title}' by ${blog.author}`)) {
       try {
         blogService
@@ -38,10 +38,10 @@ const Blog = ({ blog,blogs,setBlogs }) => {
         console.log(err)
       }
     }
-    
-  } 
+
+  }
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className="blog"  >
       <div>{blog.title} <button onClick={(e) => handleView(e)}>{ view ? "hide" : "view"}</button></div>
       {view && (
         <div>
@@ -54,11 +54,11 @@ const Blog = ({ blog,blogs,setBlogs }) => {
               like
             </button>
           </div>
-          <div>{blog.author}</div>
+          <div >{blog.author}</div>
           <button onClick={(e)=>handleDelete(e)}>remove</button>
         </div>
       )}
-     
+
     </div>
   )
 }
