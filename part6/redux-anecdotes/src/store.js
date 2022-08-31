@@ -9,7 +9,6 @@ const store = configureStore({
         anecdotes: anecdoteReducer,
         notification: notificationReducer,
         filter: filterReducer
-
     }
 })
 
