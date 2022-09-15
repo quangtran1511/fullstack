@@ -1,5 +1,9 @@
-import patients from "../../data/patients";
-import { PatientEntry,NonSsnEntry } from "../types/types";
+import patientsData from "../../data/patients";
+import { PatientEntry,NonSsnEntry, NewPatientEntry } from "../types/types";
+import { v4 as uuidv4 } from 'uuid';
+
+
+const patients: Array<PatientEntry> = patientsData
 
 const getPatientEntry = ():Array<PatientEntry> => {
     return patients
@@ -15,7 +19,17 @@ const getNonSsnPatientEntry = ():Array<NonSsnEntry> => {
     }));
 }
 
+const addPatient = (entry:NewPatientEntry): PatientEntry => {
+    const newPatientEntry = {
+        id: uuidv4(),
+        ...entry
+    }
+    patients.push(newPatientEntry)
+    return newPatientEntry
+}
+
 export default {
     getPatientEntry,
-    getNonSsnPatientEntry
+    getNonSsnPatientEntry,
+    addPatient
 }
