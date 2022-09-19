@@ -1,5 +1,5 @@
 import patientsData from "../../data/patients";
-import { PatientEntry,NonSsnEntry, NewPatientEntry } from "../types/types";
+import { PatientEntry,NonSsnEntry, NewPatientEntry,PublicPatient } from "../types/types";
 import { v4 as uuidv4 } from 'uuid';
 
 
@@ -10,12 +10,13 @@ const getPatientEntry = ():Array<PatientEntry> => {
 }
 
 const getNonSsnPatientEntry = ():Array<NonSsnEntry> => {
-    return patients.map(({ id, name, dateOfBirth, gender, occupation }) => ({
+    return patients.map(({ id, name, dateOfBirth, gender, occupation,entries }) => ({
         id,
         name,
         dateOfBirth,
         gender,
-        occupation
+        occupation,
+        entries
     }));
 }
 
@@ -28,8 +29,13 @@ const addPatient = (entry:NewPatientEntry): PatientEntry => {
     return newPatientEntry
 }
 
+const getPatient = (id: string): PublicPatient | undefined => {
+    const foundPatient = patients.filter(p => p.id === id)
+    return foundPatient[0]
+}
 export default {
     getPatientEntry,
     getNonSsnPatientEntry,
-    addPatient
+    addPatient,
+    getPatient
 }
