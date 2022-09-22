@@ -7,9 +7,10 @@ import {
   TextField as TextFieldMUI,
   Typography,
 } from "@material-ui/core";
-import { Diagnosis, Gender } from "../types";
+import { Diagnosis, EntryType, Gender, HealthCheckRating } from "../types";
 import { InputLabel } from "@material-ui/core";
 import Input from '@material-ui/core/Input';
+
 
 // structure of a single option
 export type GenderOption = {
@@ -21,7 +22,17 @@ export type GenderOption = {
 type SelectFieldProps = {
   name: string;
   label: string;
-  options: GenderOption[];
+  options: GenderOption[] |Option[] | EntryTypeOption[];
+};
+
+export type Option = {
+  value: HealthCheckRating,
+  label: string
+};
+
+export type EntryTypeOption = {
+  value: EntryType,
+  label: string
 };
 
 const FormikSelect = ({ field, ...props }: FieldProps) => <Select {...field} {...props} />;
@@ -72,9 +83,9 @@ interface NumberProps extends FieldProps {
   min: number;
   max: number;
 }
-
+// can not using this component
 export const NumberField = ({ field, label, min, max }: NumberProps) => {
-  const [value, setValue] = useState<number>();
+  const [value, setValue] = useState<number>(0);
 
   return (
     <div style={{ marginBottom: "1em" }}>
@@ -90,8 +101,7 @@ export const NumberField = ({ field, label, min, max }: NumberProps) => {
           if (value === undefined) return;
           if (value > max) setValue(max);
           else if (value <= min) setValue(min);
-          else setValue(Math.floor(value));
-      }}
+          else setValue(Math.floor(value));}}
       />
       <Typography variant="subtitle2" style={{ color: "red" }}>
         <ErrorMessage name={field.name} />
@@ -111,7 +121,7 @@ export const DiagnosisSelection = ({
 }) => {
   const [selectedDiagnoses, setDiagnoses] = useState<string[]>([]);
   const field = "diagnosisCodes";
-  const onChange = (data: string[]) => {    
+  const onChange = (data: string[]) => {
     setDiagnoses([...data]);
     setFieldTouched(field, true);
     setFieldValue(field, selectedDiagnoses);

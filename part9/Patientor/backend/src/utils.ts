@@ -1,5 +1,5 @@
-import { Gender,NewPatientEntry } from "./types/types";
-
+import { Gender,NewPatientEntry,BaseEntry,HealthCheckRating,Entry } from "./types/types";
+import { v4 as uuid } from 'uuid';
 
 const isString = (text: unknown): text is string => {
     return typeof text === 'string' || text instanceof String
@@ -50,7 +50,8 @@ const parseOccupation = (occupation: unknown): string => {
 
 type Fileds = { name: unknown, dateOfBirth: unknown, ssn: unknown, occupation: unknown, gender: unknown };
 
-const toNewPatientEntry = ({ name, dateOfBirth, ssn, gender, occupation }: Fileds): NewPatientEntry => {
+// NewPatient
+export const toNewPatientEntry = ({ name, dateOfBirth, ssn, gender, occupation }: Fileds): NewPatientEntry => {
 
     const newEntry: NewPatientEntry = {
         name: parseName(name),
@@ -64,4 +65,81 @@ const toNewPatientEntry = ({ name, dateOfBirth, ssn, gender, occupation }: Filed
     return newEntry
 }
 
-export default toNewPatientEntry
+// NewEntry
+
+const parseDescription = (description: unknown): string => {
+    if (!description || !isString(description)) {
+        throw new Error("Incorrect or missing description ")
+    }
+    return description
+}
+
+const parseSpecialist = (specialist: unknown): string => {
+    if (!specialist || !isString(specialist)) {
+        throw new Error("Incorrect or missing specialist ")
+    }
+    return specialist
+}
+
+const parseCriteria = (criteria: unknown): string => {
+    if (!criteria || !isString(criteria)) {
+        throw new Error("Incorrect or missing criteria ")
+    }
+    return criteria
+}
+
+const isRating = (param: any): param is HealthCheckRating => {
+    return Object.values(HealthCheckRating).includes(param);
+};
+
+const parseRating = (rating: any): HealthCheckRating => {
+    if (!rating || !isRating(rating)) {
+      throw new Error(
+        "HealthCheckRating missing or incorrect value" + `${rating as string}`
+      );
+    }
+    return rating;
+  };
+
+export const toNewEntry = (object: any): Entry => {
+    const newEntry: BaseEntry = {
+        id: uuid(),
+        description: parseDescription(object.description),
+        date: parseDate(object.date),
+        specialist: parseSpecialist(object.specialist),
+        diagnosisCodes: object.diagnosisCodes
+    };
+    switch (object.type) {
+        case "HealthCheck":
+            return {
+                ...newEntry,
+                type: 'HealthCheck',
+                healthCheckRating: parseRating(object.healthCheckRating)
+            };
+        case 'Hospital':
+            return {
+                ...newEntry,
+                type: 'Hospital',
+                discharge: {
+                    date: parseDate(object.discharge.date),
+                    criteria: parseCriteria(object.discharge.criteria)
+                }
+            }
+        case 'OccupationalHealthcare':
+            return {
+                ...newEntry,
+                type: 'OccupationalHealthcare',
+                employerName: parseName(object.employerName),
+                sickLeave: {
+                    startDate: parseDate(object.sickLeave.startDate),
+                    endDate: parseDate(object.sickLeave.endDate)
+                }
+
+            }
+        default:
+            throw new Error(`Incorrect entry type`);
+    }
+}
+
+
+
